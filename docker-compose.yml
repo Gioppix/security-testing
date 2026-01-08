@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-banking
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: PIAL
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./database_files/mysql:/docker-entrypoint-initdb.d
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  banking-app:
+    build: .
+    container_name: banking-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: PIAL
+      DB_USER: root
+      DB_PASSWORD: root
+
+volumes:
+  mysql-data:
