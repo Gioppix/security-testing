@@ -1,0 +1,23 @@
+# Generated coverage reports
+jacoco_coverage/
+*.class
+
+# Dependency check reports
+dependency-check-report/
+
+# Build artifacts
+build/
+target/
+dist/
+out/
+
+docker-compose.yml
+Dockerfile
+
+# Test artifacts
+*.log
+
+# Minified files (if you want to exclude them later)
+# *.min.js
+# *.min.css
+# *bundle*.js

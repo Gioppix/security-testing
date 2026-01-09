@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DatabaseOperations.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Online Banking System Coverage</a> &gt; <a href="index.source.html" class="el_package">com.green.bank.database</a> &gt; <span class="el_source">DatabaseOperations.java</span></div><h1>DatabaseOperations.java</h1><pre class="source lang-java linenums">package com.green.bank.database;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+
+import com.green.bank.model.AccountModel;
+import com.green.bank.model.DepositSchemeModel;
+import com.green.bank.model.LoanModel;
+
+<span class="fc" id="L18">public class DatabaseOperations {</span>
+	Connection conn;
+	int count1, count2;
+
+	public boolean insertAccountDetails(AccountModel model) throws Exception {
+		try {
+<span class="fc" id="L24">			JDBC_Connect connect = new JDBC_Connect();</span>
+<span class="fc" id="L25">			conn = connect.getConnection();</span>
+<span class="fc" id="L26">			PreparedStatement ps1 = conn.prepareStatement(&quot;insert into account(id,f_name,l_name,address,city,&quot;</span>
+<span class="fc" id="L27">					+ &quot;branch,zip,username,password,phone,email,account_type,reg_date) values('&quot; + model.getAccount_no()</span>
+<span class="fc" id="L28">					+ &quot;','&quot; + model.getFirst_name() + &quot;','&quot; + model.getLast_name() + &quot;','&quot; + model.getAddress() + &quot;','&quot;</span>
+<span class="fc" id="L29">					+ model.getCity() + &quot;','&quot; + model.getBranch() + &quot;','&quot; + model.getZip() + &quot;','&quot; + model.getUsername()</span>
+<span class="fc" id="L30">					+ &quot;','&quot; + model.getPassword() + &quot;','&quot; + model.getPhone_number() + &quot;','&quot; + model.getEmail() + &quot;','&quot;</span>
+<span class="fc" id="L31">					+ model.getAccount_type() + &quot;','&quot; + model.getReg_date() + &quot;')&quot;);</span>
+<span class="fc" id="L32">			count1 = ps1.executeUpdate();</span>
+<span class="fc" id="L33">			System.out.println(&quot;Inserted &quot; + count1 + &quot; row&quot;);</span>
+
+<span class="fc" id="L35">			PreparedStatement ps2 = conn.prepareStatement(&quot;insert into amount(id,amount) values('&quot;</span>
+<span class="fc" id="L36">					+ model.getAccount_no() + &quot;','&quot; + model.getAmount() + &quot;')&quot;);</span>
+<span class="fc" id="L37">			count2 = ps2.executeUpdate();</span>
+
+<span class="fc" id="L39">			System.out.println(&quot;Inserted &quot; + count2 + &quot; row&quot;);</span>
+
+<span class="fc" id="L41">			conn.close();</span>
+
+<span class="fc" id="L43">		} catch (SQLException e) {</span>
+<span class="fc" id="L44">			e.printStackTrace();</span>
+<span class="fc" id="L45">		}</span>
+
+<span class="pc bpc" id="L47" title="2 of 4 branches missed.">		return ((count1 &gt; 0) &amp;&amp; (count2 &gt; 0));</span>
+	}
+
+	public boolean insertLoanDetails(LoanModel model) throws Exception {
+		try {
+<span class="fc" id="L52">			JDBC_Connect connect = new JDBC_Connect();</span>
+<span class="fc" id="L53">			conn = connect.getConnection();</span>
+<span class="fc" id="L54">			PreparedStatement ps1 = conn</span>
+<span class="fc" id="L55">					.prepareStatement(&quot;insert into loan(id,amount,status,first_name,last_name,address,email) values('&quot;</span>
+<span class="fc" id="L56">							+ model.getAccount_no() + &quot;','&quot; + model.getLoan_amount() + &quot;','&quot; + model.getStatus() + &quot;','&quot;</span>
+<span class="fc" id="L57">							+ model.getFirst_name() + &quot;','&quot; + model.getLast_name() + &quot;','&quot; + model.getAddress() + &quot;','&quot;</span>
+<span class="fc" id="L58">							+ model.getEmail() + &quot;')&quot;);</span>
+<span class="fc" id="L59">			count1 = ps1.executeUpdate();</span>
+
+<span class="fc" id="L61">			conn.close();</span>
+
+<span class="fc" id="L63">		} catch (SQLException e) {</span>
+<span class="fc" id="L64">			e.printStackTrace();</span>
+<span class="fc" id="L65">		}</span>
+
+<span class="fc bfc" id="L67" title="All 2 branches covered.">		return (count1 &gt; 0);</span>
+	}
+
+	public AccountModel getAccountDetails(Connection conn, String account_no) throws Exception {
+<span class="fc" id="L71">		AccountModel am = new AccountModel();</span>
+
+<span class="fc" id="L73">		Statement stmt = conn.createStatement();</span>
+<span class="fc" id="L74">		ResultSet rs = stmt.executeQuery(&quot;select * from account where id ='&quot; + account_no + &quot;'&quot;);</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">		while (rs.next()) {</span>
+
+			// Setting all variables to model class
+<span class="fc" id="L78">			am = new AccountModel();</span>
+<span class="fc" id="L79">			am.setAccount_no(rs.getString(1));</span>
+<span class="fc" id="L80">			am.setFirst_name(rs.getString(2));</span>
+<span class="fc" id="L81">			am.setLast_name(rs.getString(3));</span>
+<span class="fc" id="L82">			am.setAddress(rs.getString(4));</span>
+<span class="fc" id="L83">			am.setCity(rs.getString(5));</span>
+<span class="fc" id="L84">			am.setBranch(rs.getString(6));</span>
+<span class="fc" id="L85">			am.setZip(rs.getString(7));</span>
+<span class="fc" id="L86">			am.setUsername(rs.getString(8));</span>
+<span class="fc" id="L87">			am.setPassword(rs.getString(9));</span>
+<span class="fc" id="L88">			am.setPhone_number(rs.getString(10));</span>
+<span class="fc" id="L89">			am.setEmail(rs.getString(11));</span>
+<span class="fc" id="L90">			am.setAccount_type(rs.getString(12));</span>
+<span class="fc" id="L91">			am.setReg_date(rs.getString(13));</span>
+		}
+<span class="fc" id="L93">		ResultSet rs1 = stmt.executeQuery(&quot;select * from amount where id ='&quot; + am.getAccount_no() + &quot;'&quot;);</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">		while (rs1.next()) {</span>
+<span class="fc" id="L95">			am.setAmount(rs1.getInt(2));</span>
+		}
+<span class="fc" id="L97">		return am;</span>
+	}
+
+	public boolean insertDepositScheme(DepositSchemeModel model) throws Exception {
+		try {
+<span class="nc" id="L102">			JDBC_Connect connect = new JDBC_Connect();</span>
+<span class="nc" id="L103">			conn = connect.getConnection();</span>
+
+			// getting current date
+<span class="nc" id="L106">			DateFormat dateFormat = new SimpleDateFormat(&quot;yyyy/MM/dd HH:mm:ss&quot;);</span>
+<span class="nc" id="L107">			Date date = new Date();</span>
+<span class="nc" id="L108">			String current_time = dateFormat.format(date);</span>
+
+<span class="nc" id="L110">			PreparedStatement ps1 = conn</span>
+<span class="nc" id="L111">					.prepareStatement(&quot;insert into deposit(id,year,interest,amount,deposit_date) values('&quot;</span>
+<span class="nc" id="L112">							+ model.getAccount_no() + &quot;','&quot; + model.getYear() + &quot;','&quot; + model.getInterest_rate() + &quot;','&quot;</span>
+<span class="nc" id="L113">							+ model.getAmount() + &quot;','&quot; + current_time + &quot;')&quot;);</span>
+<span class="nc" id="L114">			count1 = ps1.executeUpdate();</span>
+<span class="nc" id="L115">			System.out.println(&quot;Inserted &quot; + count1 + &quot; row&quot;);</span>
+
+<span class="nc" id="L117">			conn.close();</span>
+
+<span class="nc" id="L119">		} catch (SQLException e) {</span>
+<span class="nc" id="L120">			e.printStackTrace();</span>
+<span class="nc" id="L121">		}</span>
+
+<span class="nc bnc" id="L123" title="All 2 branches missed.">		return ((count1 &gt; 0));</span>
+	}
+
+	public ArrayList&lt;LoanModel&gt; getLoanList(Connection conn) throws Exception {
+<span class="fc" id="L127">		ArrayList&lt;LoanModel&gt; loanList = new ArrayList&lt;&gt;();</span>
+		LoanModel loanModel;
+
+<span class="fc" id="L130">		Statement stmt = conn.createStatement();</span>
+<span class="fc" id="L131">		ResultSet rs = stmt.executeQuery(&quot;select * from loan where status='pending'&quot;);</span>
+<span class="fc bfc" id="L132" title="All 2 branches covered.">		while (rs.next()) {</span>
+<span class="fc" id="L133">			loanModel = new LoanModel();</span>
+<span class="fc" id="L134">			loanModel.setAccount_no(rs.getString(1));</span>
+<span class="fc" id="L135">			loanModel.setLoan_amount(rs.getInt(2));</span>
+<span class="fc" id="L136">			loanModel.setStatus(rs.getString(3));</span>
+<span class="fc" id="L137">			loanModel.setFirst_name(rs.getString(4));</span>
+<span class="fc" id="L138">			loanModel.setLast_name(rs.getString(5));</span>
+<span class="fc" id="L139">			loanModel.setAddress(rs.getString(6));</span>
+<span class="fc" id="L140">			loanModel.setEmail(rs.getString(7));</span>
+
+<span class="fc" id="L142">			loanList.add(loanModel);</span>
+
+		}
+
+<span class="fc" id="L146">		return loanList;</span>
+
+	}
+
+	public void UpdateAmount(String account_no, int loan_amount) throws SQLException {
+<span class="fc" id="L151">		int current_amount = 0;</span>
+<span class="fc" id="L152">		JDBC_Connect connect = new JDBC_Connect();</span>
+<span class="fc" id="L153">		Connection conn = connect.getConnection();</span>
+
+<span class="fc" id="L155">		Statement stmt = conn.createStatement();</span>
+<span class="fc" id="L156">		ResultSet rs1 = stmt.executeQuery(&quot;select * from amount where id ='&quot; + account_no + &quot;'&quot;);</span>
+
+<span class="fc bfc" id="L158" title="All 2 branches covered.">		while (rs1.next()) {</span>
+<span class="fc" id="L159">			current_amount = rs1.getInt(2);</span>
+
+		}
+
+<span class="fc" id="L163">		current_amount += loan_amount;</span>
+
+		// Updating Loan amount
+<span class="fc" id="L166">		PreparedStatement ps = conn.prepareStatement(&quot;update amount set amount=? where id= ?&quot;);</span>
+<span class="fc" id="L167">		ps.setInt(1, current_amount);</span>
+<span class="fc" id="L168">		ps.setString(2, account_no);</span>
+<span class="fc" id="L169">		ps.executeUpdate();</span>
+
+<span class="fc" id="L171">		PreparedStatement ps1 = conn.prepareStatement(&quot;update loan set status=? where id= ?&quot;);</span>
+<span class="fc" id="L172">		ps1.setString(1, &quot;success&quot;);</span>
+<span class="fc" id="L173">		ps1.setString(2, account_no);</span>
+<span class="fc" id="L174">		ps1.executeUpdate();</span>
+
+<span class="fc" id="L176">		conn.close();</span>
+
+<span class="fc" id="L178">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

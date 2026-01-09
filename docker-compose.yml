@@ -32,6 +32,8 @@ services:
       DB_NAME: PIAL
       DB_USER: root
       DB_PASSWORD: root
+    volumes:
+      - ./jacoco_coverage:/jacoco_output
 
 volumes:
   mysql-data:

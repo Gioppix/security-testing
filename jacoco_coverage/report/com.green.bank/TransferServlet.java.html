@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TransferServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Online Banking System Coverage</a> &gt; <a href="index.source.html" class="el_package">com.green.bank</a> &gt; <span class="el_source">TransferServlet.java</span></div><h1>TransferServlet.java</h1><pre class="source lang-java linenums">package com.green.bank;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import com.green.bank.database.JDBC_Connect;
+import com.green.bank.model.AccountModel;
+
+<span class="fc" id="L21">public class TransferServlet extends HttpServlet {</span>
+	String account_no, username, target_acc_no, password;
+	Connection conn;
+	Statement stmt;
+<span class="fc" id="L25">	boolean pass_wrong = false;</span>
+	int own_amount, transfer_amount, recipient_amount;
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+<span class="fc" id="L30">		account_no = request.getParameter(&quot;account_no&quot;);</span>
+<span class="fc" id="L31">		username = request.getParameter(&quot;username&quot;);</span>
+<span class="fc" id="L32">		target_acc_no = request.getParameter(&quot;target_acc_no&quot;);</span>
+<span class="fc" id="L33">		password = request.getParameter(&quot;password&quot;);</span>
+<span class="fc" id="L34">		transfer_amount = Integer.parseInt(request.getParameter(&quot;amount&quot;));</span>
+
+		try {
+<span class="fc" id="L37">			JDBC_Connect connect = new JDBC_Connect();</span>
+<span class="fc" id="L38">			conn = connect.getConnection();</span>
+
+<span class="fc" id="L40">			stmt = conn.createStatement();</span>
+
+<span class="fc" id="L42">			ResultSet rsOwn = stmt.executeQuery(&quot;select * from account where id='&quot; + account_no + &quot;' and username='&quot;</span>
+					+ username + &quot;' and password='&quot; + password + &quot;'&quot;);
+
+<span class="fc" id="L45">			ResultSet rstTarget = stmt.executeQuery(&quot;select * from account where id='&quot; + target_acc_no + &quot;'&quot;);</span>
+
+<span class="nc bnc" id="L47" title="All 4 branches missed.">			if (!rsOwn.isBeforeFirst() &amp;&amp; !rstTarget.isBeforeFirst()) {</span>
+<span class="nc" id="L48">				request.setAttribute(&quot;isPassOK&quot;, &quot;No&quot;);</span>
+<span class="nc" id="L49">				RequestDispatcher rd = request.getRequestDispatcher(&quot;transfer.jsp&quot;);</span>
+<span class="nc" id="L50">				rd.forward(request, response);</span>
+<span class="nc" id="L51">			} else {</span>
+<span class="nc" id="L52">				System.out.println(&quot;I am in&quot;);</span>
+<span class="nc" id="L53">				ResultSet rs1 = stmt.executeQuery(&quot;select * from amount where id ='&quot; + account_no + &quot;'&quot;);</span>
+
+<span class="nc bnc" id="L55" title="All 2 branches missed.">				while (rs1.next()) {</span>
+<span class="nc" id="L56">					own_amount = rs1.getInt(2);</span>
+				}
+
+<span class="nc bnc" id="L59" title="All 2 branches missed.">				if (own_amount &gt;= transfer_amount) {</span>
+<span class="nc" id="L60">					own_amount -= transfer_amount;</span>
+
+<span class="nc" id="L62">					ResultSet rs2 = stmt.executeQuery(&quot;select * from amount where id ='&quot; + target_acc_no + &quot;'&quot;);</span>
+
+<span class="nc bnc" id="L64" title="All 2 branches missed.">					while (rs2.next()) {</span>
+<span class="nc" id="L65">						recipient_amount = rs2.getInt(2);</span>
+					}
+
+<span class="nc" id="L68">					recipient_amount += transfer_amount;</span>
+
+<span class="nc" id="L70">					PreparedStatement ps = conn.prepareStatement(&quot;update amount set amount=? where id= ?&quot;);</span>
+<span class="nc" id="L71">					ps.setInt(1, own_amount);</span>
+<span class="nc" id="L72">					ps.setString(2, account_no);</span>
+<span class="nc" id="L73">					ps.executeUpdate();</span>
+
+<span class="nc" id="L75">					PreparedStatement ps1 = conn.prepareStatement(&quot;update amount set amount=? where id= ?&quot;);</span>
+<span class="nc" id="L76">					ps1.setInt(1, recipient_amount);</span>
+<span class="nc" id="L77">					ps1.setString(2, target_acc_no);</span>
+<span class="nc" id="L78">					ps1.executeUpdate();</span>
+
+<span class="nc" id="L80">					conn.close();</span>
+
+<span class="nc" id="L82">					RequestDispatcher rd = request.getRequestDispatcher(&quot;transfer_process.jsp&quot;);</span>
+<span class="nc" id="L83">					rd.forward(request, response);</span>
+<span class="nc" id="L84">				}else{</span>
+<span class="nc" id="L85">					conn.close();</span>
+<span class="nc" id="L86">					request.setAttribute(&quot;EnoughMoney&quot;, &quot;No&quot;);</span>
+<span class="nc" id="L87">					RequestDispatcher rd = request.getRequestDispatcher(&quot;transfer.jsp&quot;);</span>
+<span class="nc" id="L88">					rd.forward(request, response);</span>
+				}
+
+			}
+
+<span class="fc" id="L93">		} catch (SQLException e) {</span>
+<span class="fc" id="L94">			e.printStackTrace();</span>
+<span class="nc" id="L95">		}</span>
+<span class="fc" id="L96">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

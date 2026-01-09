@@ -34,8 +34,15 @@ COPY --from=builder /app/WebContent/ /usr/local/tomcat/webapps/ROOT/
 # Copy MySQL JDBC driver to Tomcat lib
 COPY lib/mysql-connector-java-8.0.22.jar /usr/local/tomcat/lib/
 
+# Copy JaCoCo agent
+COPY jacoco_agent/org.jacoco.agent-0.8.7-runtime.jar /opt/jacoco/jacocoagent.jar
+
+# Create directory for coverage output
+RUN mkdir -p /jacoco_output && chmod 777 /jacoco_output
+
 # Expose port
 EXPOSE 8080
 
-# Start Tomcat
+# Configure JaCoCo agent in CATALINA_OPTS and start Tomcat
+ENV JAVA_OPTS="-javaagent:/opt/jacoco/jacocoagent.jar=destfile=/jacoco_output/jacoco.exec,classdumpdir=/jacoco_output/classes"
 CMD ["catalina.sh", "run"]
