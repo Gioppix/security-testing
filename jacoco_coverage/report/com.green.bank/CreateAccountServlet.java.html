@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CreateAccountServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Online Banking System Coverage</a> &gt; <a href="index.source.html" class="el_package">com.green.bank</a> &gt; <span class="el_source">CreateAccountServlet.java</span></div><h1>CreateAccountServlet.java</h1><pre class="source lang-java linenums">package com.green.bank;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Random;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.green.bank.model.AccountModel;
+
+<span class="fc" id="L19">public class CreateAccountServlet extends HttpServlet {</span>
+	String account_no, first_name, last_name, address, city, branch, zip, username, password, re_password,
+			phone_number, email, account_type;
+	int amount;
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+<span class="fc" id="L26">		PrintWriter out = response.getWriter();</span>
+
+<span class="fc" id="L28">		first_name = request.getParameter(&quot;first_name&quot;);</span>
+<span class="fc" id="L29">		last_name = request.getParameter(&quot;last_name&quot;);</span>
+<span class="fc" id="L30">		address = request.getParameter(&quot;address&quot;);</span>
+<span class="fc" id="L31">		city = request.getParameter(&quot;city&quot;);</span>
+<span class="fc" id="L32">		branch = request.getParameter(&quot;branch&quot;);</span>
+<span class="fc" id="L33">		zip = request.getParameter(&quot;zip&quot;);</span>
+<span class="fc" id="L34">		username = request.getParameter(&quot;username&quot;);</span>
+<span class="fc" id="L35">		password = request.getParameter(&quot;password&quot;);</span>
+<span class="fc" id="L36">		re_password = request.getParameter(&quot;re_password&quot;);</span>
+<span class="fc" id="L37">		phone_number = request.getParameter(&quot;phone&quot;);</span>
+<span class="fc" id="L38">		email = request.getParameter(&quot;email&quot;);</span>
+<span class="fc" id="L39">		account_type = request.getParameter(&quot;account_type&quot;);</span>
+<span class="fc" id="L40">		amount = Integer.parseInt(request.getParameter(&quot;amount&quot;));</span>
+
+		// Generating account number
+<span class="fc" id="L43">		Random rand = new Random();</span>
+<span class="fc" id="L44">		int random_num = 100000 + rand.nextInt(999999);</span>
+<span class="fc" id="L45">		account_no = first_name.substring(0, 2) + last_name.substring(0, 2) + random_num;</span>
+<span class="fc" id="L46">		System.out.println(account_no);</span>
+		
+		//Getting Current date
+<span class="fc" id="L49">		DateFormat df = new SimpleDateFormat(&quot;dd/MM/yyyy&quot;);</span>
+<span class="fc" id="L50">		String reg_date = df.format(new Date());</span>
+
+		// Setting all variables to model class
+<span class="fc" id="L53">		AccountModel am = new AccountModel();</span>
+<span class="fc" id="L54">		am.setAccount_no(account_no);</span>
+<span class="fc" id="L55">		am.setFirst_name(first_name);</span>
+<span class="fc" id="L56">		am.setLast_name(last_name);</span>
+<span class="fc" id="L57">		am.setAddress(address);</span>
+<span class="fc" id="L58">		am.setCity(city);</span>
+<span class="fc" id="L59">		am.setBranch(branch);</span>
+<span class="fc" id="L60">		am.setZip(zip);</span>
+<span class="fc" id="L61">		am.setUsername(username);</span>
+<span class="fc" id="L62">		am.setPassword(password);</span>
+<span class="fc" id="L63">		am.setPhone_number(phone_number);</span>
+<span class="fc" id="L64">		am.setEmail(email);</span>
+<span class="fc" id="L65">		am.setAccount_type(account_type);</span>
+<span class="fc" id="L66">		am.setAmount(amount);</span>
+<span class="fc" id="L67">		am.setReg_date(reg_date);</span>
+
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">		if (password.equals(re_password)) {</span>
+<span class="fc" id="L70">			request.setAttribute(&quot;Account_details&quot;, am);</span>
+<span class="fc" id="L71">			RequestDispatcher rd = request.getRequestDispatcher(&quot;create_account_progress.jsp&quot;);</span>
+<span class="fc" id="L72">			rd.forward(request, response);</span>
+
+<span class="fc" id="L74">		} else {</span>
+<span class="nc" id="L75">			request.setAttribute(&quot;not_match&quot;, &quot;yes&quot;);</span>
+<span class="nc" id="L76">			RequestDispatcher rd = request.getRequestDispatcher(&quot;create_account.jsp&quot;);</span>
+<span class="nc" id="L77">			rd.forward(request, response);</span>
+		}
+<span class="fc" id="L79">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

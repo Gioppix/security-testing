@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LoanServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Online Banking System Coverage</a> &gt; <a href="index.source.html" class="el_package">com.green.bank</a> &gt; <span class="el_source">LoanServlet.java</span></div><h1>LoanServlet.java</h1><pre class="source lang-java linenums">package com.green.bank;
+
+import java.io.IOException;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.green.bank.database.DatabaseOperations;
+import com.green.bank.model.LoanModel;
+
+<span class="fc" id="L15">public class LoanServlet extends HttpServlet {</span>
+	int loan_amount;
+	String account_no,first_name,last_name,address,email;
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+<span class="fc" id="L21">		account_no = request.getParameter(&quot;account_no&quot;);</span>
+<span class="fc" id="L22">		loan_amount = Integer.parseInt(request.getParameter(&quot;loan_amount&quot;));</span>
+<span class="fc" id="L23">		first_name = request.getParameter(&quot;first_name&quot;);</span>
+<span class="fc" id="L24">		last_name = request.getParameter(&quot;last_name&quot;);</span>
+<span class="fc" id="L25">		address = request.getParameter(&quot;address&quot;);</span>
+<span class="fc" id="L26">		email = request.getParameter(&quot;email&quot;);</span>
+
+<span class="fc" id="L28">		LoanModel lModel = new LoanModel();</span>
+<span class="fc" id="L29">		lModel.setAccount_no(account_no);</span>
+<span class="fc" id="L30">		lModel.setFirst_name(first_name);</span>
+<span class="fc" id="L31">		lModel.setLast_name(last_name);</span>
+<span class="fc" id="L32">		lModel.setAddress(address);</span>
+<span class="fc" id="L33">		lModel.setEmail(email);</span>
+<span class="fc" id="L34">		lModel.setLoan_amount(loan_amount);</span>
+<span class="fc" id="L35">		lModel.setStatus(&quot;pending&quot;);</span>
+
+		try {
+<span class="fc" id="L38">			DatabaseOperations operations = new DatabaseOperations();</span>
+<span class="fc" id="L39">			boolean check =  operations.insertLoanDetails(lModel);</span>
+			
+<span class="fc bfc" id="L41" title="All 2 branches covered.">			if(check){</span>
+<span class="fc" id="L42">				RequestDispatcher rd = request.getRequestDispatcher(&quot;loan_process.jsp&quot;);</span>
+<span class="fc" id="L43">				request.setAttribute(&quot;loan_details&quot;, lModel);</span>
+<span class="fc" id="L44">				rd.forward(request, response);</span>
+<span class="fc" id="L45">			}</span>
+			else{
+<span class="fc" id="L47">				RequestDispatcher rd = request.getRequestDispatcher(&quot;loan_process.jsp&quot;);</span>
+<span class="fc" id="L48">				request.setAttribute(&quot;error&quot;, &quot;yes&quot;);</span>
+<span class="fc" id="L49">				rd.forward(request, response);</span>
+			}
+<span class="nc" id="L51">		} catch (Exception e) {</span>
+<span class="nc" id="L52">			e.printStackTrace();</span>
+<span class="fc" id="L53">		}</span>
+<span class="fc" id="L54">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

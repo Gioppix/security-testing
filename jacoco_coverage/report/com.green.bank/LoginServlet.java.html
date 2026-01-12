@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LoginServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Online Banking System Coverage</a> &gt; <a href="index.source.html" class="el_package">com.green.bank</a> &gt; <span class="el_source">LoginServlet.java</span></div><h1>LoginServlet.java</h1><pre class="source lang-java linenums">package com.green.bank;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import com.green.bank.database.JDBC_Connect;
+import com.green.bank.model.AccountModel;
+
+<span class="fc" id="L20">public class LoginServlet extends HttpServlet {</span>
+	String UserName, password;
+	Connection conn;
+	Statement stmt;
+	Statement stmt2;
+<span class="fc" id="L25">	AccountModel am = null;</span>
+<span class="fc" id="L26">	boolean pass_wrong = false;</span>
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+<span class="fc" id="L30">		UserName = request.getParameter(&quot;UserName&quot;);</span>
+<span class="fc" id="L31">		password = request.getParameter(&quot;password&quot;);</span>
+
+<span class="fc" id="L33">		System.out.println(UserName);</span>
+<span class="fc" id="L34">		System.out.println(password);</span>
+
+		try {
+			// Getting database connection
+<span class="fc" id="L38">			JDBC_Connect connect = new JDBC_Connect();</span>
+<span class="fc" id="L39">			conn = connect.getConnection();</span>
+
+<span class="fc" id="L41">			stmt = conn.createStatement();</span>
+
+<span class="fc" id="L43">			ResultSet rs = stmt.executeQuery(</span>
+					&quot;select * from account where username ='&quot; + UserName + &quot;'&quot; + &quot;and password='&quot; + password + &quot;'&quot;);
+
+<span class="fc bfc" id="L46" title="All 2 branches covered.">			if (!rs.isBeforeFirst()) {</span>
+<span class="fc" id="L47">				request.setAttribute(&quot;isPassOK&quot;, &quot;No&quot;);</span>
+<span class="fc" id="L48">				RequestDispatcher rd = request.getRequestDispatcher(&quot;login.jsp&quot;);</span>
+<span class="fc" id="L49">				rd.forward(request, response);</span>
+<span class="fc" id="L50">			} else {</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">				while (rs.next()) {</span>
+<span class="fc" id="L52">					pass_wrong = true;</span>
+					// Setting all variables to model class
+<span class="fc" id="L54">					am = new AccountModel();</span>
+<span class="fc" id="L55">					am.setAccount_no(rs.getString(1));</span>
+<span class="fc" id="L56">					am.setFirst_name(rs.getString(2));</span>
+<span class="fc" id="L57">					am.setLast_name(rs.getString(3));</span>
+<span class="fc" id="L58">					am.setAddress(rs.getString(4));</span>
+<span class="fc" id="L59">					am.setCity(rs.getString(5));</span>
+<span class="fc" id="L60">					am.setBranch(rs.getString(6));</span>
+<span class="fc" id="L61">					am.setZip(rs.getString(7));</span>
+<span class="fc" id="L62">					am.setUsername(rs.getString(8));</span>
+<span class="fc" id="L63">					am.setPassword(rs.getString(9));</span>
+<span class="fc" id="L64">					am.setPhone_number(rs.getString(10));</span>
+<span class="fc" id="L65">					am.setEmail(rs.getString(11));</span>
+<span class="fc" id="L66">					am.setAccount_type(rs.getString(12));</span>
+<span class="fc" id="L67">					am.setReg_date(rs.getString(13));</span>
+					
+<span class="fc" id="L69">					stmt2 = conn.createStatement(); </span>
+					
+<span class="fc" id="L71">					ResultSet rs1 = stmt2.executeQuery(&quot;select * from amount where id ='&quot; + am.getAccount_no() + &quot;'&quot;);</span>
+
+<span class="fc bfc" id="L73" title="All 2 branches covered.">					while (rs1.next()) {</span>
+<span class="fc" id="L74">						am.setAmount(rs1.getInt(2));</span>
+					}
+
+					// Setting Session variable for current User
+<span class="fc" id="L78">					HttpSession session = request.getSession();</span>
+<span class="fc" id="L79">					session.setAttribute(&quot;userDetails&quot;, am);</span>
+
+<span class="fc" id="L81">					RequestDispatcher rd = request.getRequestDispatcher(&quot;index.jsp&quot;);</span>
+<span class="fc" id="L82">					rd.forward(request, response);</span>
+
+<span class="fc" id="L84">				}</span>
+			}
+
+<span class="fc" id="L87">		} catch (SQLException e) {</span>
+			// TODO Auto-generated catch block
+<span class="fc" id="L89">			e.printStackTrace();</span>
+<span class="fc" id="L90">		}</span>
+
+<span class="fc" id="L92">		}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

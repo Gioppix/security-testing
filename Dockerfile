@@ -1,19 +1,14 @@
-# ================================
-# Stage 1: Build + SpotBugs report
-# ================================
+# Stage 1: Build
 FROM maven:3.8-eclipse-temurin-8 AS builder
 
 WORKDIR /app
 
-# Copy sources and resources
 COPY src/ /app/src/
 COPY WebContent/ /app/WebContent/
 COPY lib/ /app/lib/
 
-# Prepare output directory
 RUN mkdir -p /app/WebContent/WEB-INF/classes
 
-# Install tools + servlet API
 RUN apt-get update && apt-get install -y wget && \
     wget https://repo1.maven.org/maven2/javax/servlet/javax.servlet-api/3.1.0/javax.servlet-api-3.1.0.jar \
     -O /tmp/servlet-api.jar
@@ -68,10 +63,8 @@ RUN echo "Starting SpotBugs + FindSecBugs XML analysis..." && \
 # ================================
 FROM tomcat:8.5-jdk8-temurin
 
-# Remove default apps
 RUN rm -rf /usr/local/tomcat/webapps/*
 
-# Deploy application
 COPY --from=builder /app/WebContent/ /usr/local/tomcat/webapps/ROOT/
 
 # Copy SpotBugs reports
@@ -79,7 +72,11 @@ COPY --from=builder /app/reports/ /usr/local/tomcat/webapps/ROOT/reports/
 
 # MySQL driver
 COPY lib/mysql-connector-java-8.0.22.jar /usr/local/tomcat/lib/
+COPY jacoco_agent/org.jacoco.agent-0.8.7-runtime.jar /opt/jacoco/jacocoagent.jar
+
+RUN mkdir -p /jacoco_output && chmod 777 /jacoco_output
 
 EXPOSE 8080
 
+ENV JAVA_OPTS="-javaagent:/opt/jacoco/jacocoagent.jar=destfile=/jacoco_output/jacoco.exec,classdumpdir=/jacoco_output/classes"
 CMD ["catalina.sh", "run"]
